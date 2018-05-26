@@ -1,10 +1,14 @@
 package com.example.bou.admob_demo;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
@@ -21,6 +25,11 @@ import com.google.android.gms.ads.doubleclick.PublisherAdRequest;
 import com.google.android.gms.ads.reward.RewardItem;
 import com.google.android.gms.ads.reward.RewardedVideoAd;
 import com.google.android.gms.ads.reward.RewardedVideoAdListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -31,16 +40,28 @@ public class MainActivity extends AppCompatActivity {
     InterstitialAd interstitialAd;
     FloatingActionButton floatingActionButton,floatingActionButton1;
     RewardedVideoAd rewardedVideoAd;
+    int addClicked ;
+    FirebaseDatabase firebaseDatabase;
+    DatabaseReference databaseReference;
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor editor;
+    SharedPreferences sharedPreferences1;
+    SharedPreferences sharedPreferences2;
+    boolean conditionMatched;
 
+    String Email;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Intent intent = getIntent();
+        Email = intent.getStringExtra("email");
 
         init_views();
         init_variables();
         init_functions();
     }
+
 
 
     private void init_functions() {
@@ -54,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         //Baner Add ----------------------------------------->
-        AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
+        AdRequest adRequest = new AdRequest.Builder().build();
         adView.loadAd(adRequest);
 
 
@@ -67,6 +88,8 @@ public class MainActivity extends AppCompatActivity {
         // interestitial add start ------------------------->
 
 
+        showingInterstitialAdd();
+
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -78,38 +101,44 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        interstitialAd = new InterstitialAd(this);
-        interstitialAd.setAdUnitId("ca-app-pub-3940256099942544/1033173712");  // add unit id for the interstitial add
-        final AdRequest adRequest1 = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
-        interstitialAd.loadAd(adRequest1);
 
-        interstitialAd.setAdListener(new AdListener(){
-            public void onAdLoaded() {
-                floatingActionButton.setVisibility(View.VISIBLE);
-            }
 
-            @Override
-            public void onAdFailedToLoad(int errorCode) {
-                // Code to be executed when an ad request fails.
-            }
 
-            @Override
-            public void onAdOpened() {
-                // Code to be executed when the ad is displayed.
-            }
-
-            @Override
-            public void onAdLeftApplication() {
-                // Code to be executed when the user has left the app.
-            }
-
-            @Override
-            public void onAdClosed() {
-                floatingActionButton.setVisibility(View.INVISIBLE);
-                interstitialAd.loadAd(adRequest1);
-            }
-        });
-
+//
+//        interstitialAd = new InterstitialAd(this);
+//        interstitialAd.setAdUnitId("ca-app-pub-3940256099942544/1033173712");  // add unit id for the interstitial add
+//        final AdRequest adRequest1 = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
+//        interstitialAd.loadAd(adRequest1);
+//
+//        interstitialAd.setAdListener(new AdListener(){
+//            public void onAdLoaded() {
+//                floatingActionButton.setVisibility(View.INVISIBLE);
+//                interstitialAd.show();
+//            }
+//
+//            @Override
+//            public void onAdFailedToLoad(int errorCode) {
+//                // Code to be executed when an ad request fails.
+//            }
+//
+//            @Override
+//            public void onAdOpened() {
+//                // Code to be executed when the ad is displayed.
+//            }
+//
+//            @Override
+//            public void onAdLeftApplication() {
+//               Toast.makeText(getApplicationContext(),"Clicked",Toast.LENGTH_SHORT).show();// Code to be executed when the user has left the app.
+//            }
+//
+//            @Override
+//            public void onAdClosed() {
+//                floatingActionButton.setVisibility(View.INVISIBLE);
+//                SystemClock.sleep(10000);
+//                interstitialAd.loadAd(adRequest1);
+//            }
+//        });
+//
 
 
          //interstetial add ended ----------------------------->
@@ -142,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
         rewardedVideoAd.setRewardedVideoAdListener(new RewardedVideoAdListener() {
             @Override
             public void onRewardedVideoAdLoaded() {
-                  floatingActionButton1.setVisibility(View.VISIBLE);
+                  floatingActionButton1.setVisibility(View.INVISIBLE);
             }
 
             @Override
@@ -158,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onRewardedVideoAdClosed() {
                 floatingActionButton1.setVisibility(View.INVISIBLE);
-                 loadInterstitialAdd();
+                 loadRewaredVideo();
 
             }
 
@@ -190,9 +219,110 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void  loadInterstitialAdd(){
-        interstitialAd.loadAd(new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build());
+    private void showingInterstitialAdd() {
+
+        interstitialAd = new InterstitialAd(this);
+        interstitialAd.setAdUnitId("ca-app-pub-6277392379172836/4001155158");  // add unit id for the interstitial add
+        final AdRequest adRequest1 = new AdRequest.Builder().build();
+        interstitialAd.loadAd(adRequest1);
+
+        interstitialAd.setAdListener(new AdListener(){
+            public void onAdLoaded() {
+               // floatingActionButton.setVisibility(View.INVISIBLE);
+                interstitialAd.show();
+                conditionMatched = true;
+            }
+
+            @Override
+            public void onAdFailedToLoad(int errorCode) {
+                // Code to be executed when an ad request fails.
+            }
+
+            @Override
+            public void onAdOpened() {
+                // Code to be executed when the ad is displayed.
+            }
+
+            @Override
+            public void onAdLeftApplication() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(conditionMatched) {
+                            addClicked = 1;
+                            Toast.makeText(getApplicationContext(), Integer.toString(addClicked), Toast.LENGTH_SHORT).show();// Code to be executed when the user has left the app.
+                            addDataToFireBase(addClicked);
+                            conditionMatched = false;
+                        }
+                    }
+                });
+
+            }
+
+            @Override
+            public void onAdClosed() {
+               // floatingActionButton.setVisibility(View.INVISIBLE);
+
+                Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        SystemClock.sleep(60000);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                interstitialAd.loadAd(adRequest1);
+                            }
+                        });
+
+                    }
+                };
+
+                Thread thread = new Thread(runnable);
+                thread.start();
+
+            }
+        });
+
     }
+
+    private void addDataToFireBase(int totalAddClicked) {
+        boolean res = sharedPreferences.getBoolean("firstTimeclick",true);
+        if(res){
+            String Key = databaseReference.push().getKey();
+            Object_Created object_created = new Object_Created(Email,totalAddClicked,Key);
+            databaseReference.child(Key).setValue(object_created);
+            editor.putBoolean("firstTimeclick",false);
+            editor.commit();
+
+            SharedPreferences.Editor editor = sharedPreferences1.edit();
+            editor.putString("UserKey",Key);
+            editor.commit();
+
+
+
+
+        }else {
+           String Key = sharedPreferences1.getString("UserKey","user");
+            Log.d("UserID",Key);
+           Toast.makeText(getApplicationContext(),Key,Toast.LENGTH_SHORT).show();
+
+           int addClicked = sharedPreferences2.getInt("addClicked",1);
+           addClicked += 1;
+
+           SharedPreferences.Editor editor = sharedPreferences2.edit();
+           editor.putInt("addClicked",addClicked);
+           editor.commit();
+           Toast.makeText(getApplicationContext(),Integer.toString(addClicked),Toast.LENGTH_SHORT).show();
+           Log.d("TotalClicked",Integer.toString(addClicked));
+
+           Object_Created object_created = new Object_Created(Email,addClicked,Key);
+           databaseReference.child(Key).setValue(object_created);
+        }
+    }
+
+//    public void  loadInterstitialAdd(){
+//        interstitialAd.loadAd(new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build());
+//    }
 
 
    public void loadRewaredVideo(){
@@ -200,10 +330,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void init_variables() {
-        url = "https://www.google.com";
-        MobileAds.initialize(this,"ca-app-pub-3940256099942544~3347511713");   //add id for the registered app
+        url = "https://www.google.com/";
+        MobileAds.initialize(this,"ca-app-pub-6277392379172836~5533728678");   //add id for the registered app
         rewardedVideoAd = MobileAds.getRewardedVideoAdInstance(this);
-
+        addClicked = 0;
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        databaseReference = firebaseDatabase.getReference("Admob_details");
+        sharedPreferences = getSharedPreferences("userStatus_",MODE_PRIVATE);
+        sharedPreferences1 = getSharedPreferences("user",MODE_PRIVATE);
+        sharedPreferences2 = getSharedPreferences("click",MODE_PRIVATE);
+        editor = sharedPreferences.edit();
+        conditionMatched = true;
     }
 
     private void init_views() {
