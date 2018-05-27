@@ -1,11 +1,13 @@
 package com.example.bou.admob_demo;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -63,6 +65,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public void onBackPressed() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setPositiveButton("YEs", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finishAffinity();
+            }
+        });
+
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+            }
+        });
+
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+
+    }
 
     private void init_functions() {
         floatingActionButton.setVisibility(View.INVISIBLE);
@@ -70,13 +93,14 @@ public class MainActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.loadUrl(url);
-        webView.setWebViewClient(new MyWebViewClient());
+        progressBar.setVisibility(View.INVISIBLE);
+      //  webView.setWebViewClient(new MyWebViewClient());
 
 
 
         //Baner Add ----------------------------------------->
-        AdRequest adRequest = new AdRequest.Builder().build();
-        adView.loadAd(adRequest);
+//        AdRequest adRequest = new AdRequest.Builder().build();
+//        adView.loadAd(adRequest);
 
 
 
@@ -90,16 +114,16 @@ public class MainActivity extends AppCompatActivity {
 
         showingInterstitialAdd();
 
-        floatingActionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(interstitialAd.isLoaded()){
-                    interstitialAd.show();
-                }else{
-                    Toast.makeText(getApplicationContext(),"Not ready Yet",Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+//        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if(interstitialAd.isLoaded()){
+//                    interstitialAd.show();
+//                }else{
+//                    Toast.makeText(getApplicationContext(),"Not ready Yet",Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//        });
 
 
 
@@ -149,16 +173,16 @@ public class MainActivity extends AppCompatActivity {
         // rewared add started ------------------------------->
 
 
-        floatingActionButton1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(rewardedVideoAd.isLoaded()) {
-                    rewardedVideoAd.show();
-                }else {
-                    Toast.makeText(getApplicationContext(),"Failed to load",Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+//        floatingActionButton1.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if(rewardedVideoAd.isLoaded()) {
+//                    rewardedVideoAd.show();
+//                }else {
+//                    Toast.makeText(getApplicationContext(),"Failed to load",Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//        });
 
         //add unit id for the banner add
 
@@ -166,53 +190,53 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-         rewardedVideoAd.loadAd("ca-app-pub-3940256099942544/5224354917",new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build());
+        // rewardedVideoAd.loadAd("ca-app-pub-3940256099942544/5224354917",new AdRequest.Builder().build());
 
-        rewardedVideoAd.setRewardedVideoAdListener(new RewardedVideoAdListener() {
-            @Override
-            public void onRewardedVideoAdLoaded() {
-                  floatingActionButton1.setVisibility(View.INVISIBLE);
-            }
-
-            @Override
-            public void onRewardedVideoAdOpened() {
-
-            }
-
-            @Override
-            public void onRewardedVideoStarted() {
-
-            }
-
-            @Override
-            public void onRewardedVideoAdClosed() {
-                floatingActionButton1.setVisibility(View.INVISIBLE);
-                 loadRewaredVideo();
-
-            }
-
-            @Override
-            public void onRewarded(RewardItem rewardItem) {
-
-            }
-
-            @Override
-            public void onRewardedVideoAdLeftApplication() {
-
-            }
-
-            @Override
-            public void onRewardedVideoAdFailedToLoad(int i) {
-
-            }
-
-            @Override
-            public void onRewardedVideoCompleted() {
-             //   floatingActionButton1.setVisibility(View.INVISIBLE);
-
-
-            }
-        });
+//        rewardedVideoAd.setRewardedVideoAdListener(new RewardedVideoAdListener() {
+//            @Override
+//            public void onRewardedVideoAdLoaded() {
+//                  floatingActionButton1.setVisibility(View.INVISIBLE);
+//            }
+//
+//            @Override
+//            public void onRewardedVideoAdOpened() {
+//
+//            }
+//
+//            @Override
+//            public void onRewardedVideoStarted() {
+//
+//            }
+//
+//            @Override
+//            public void onRewardedVideoAdClosed() {
+//                floatingActionButton1.setVisibility(View.INVISIBLE);
+//                 loadRewaredVideo();
+//
+//            }
+//
+//            @Override
+//            public void onRewarded(RewardItem rewardItem) {
+//
+//            }
+//
+//            @Override
+//            public void onRewardedVideoAdLeftApplication() {
+//
+//            }
+//
+//            @Override
+//            public void onRewardedVideoAdFailedToLoad(int i) {
+//
+//            }
+//
+//            @Override
+//            public void onRewardedVideoCompleted() {
+//             //   floatingActionButton1.setVisibility(View.INVISIBLE);
+//
+//
+//            }
+//        });
 
 
         // rewared add end --------------------------------->
@@ -222,14 +246,17 @@ public class MainActivity extends AppCompatActivity {
     private void showingInterstitialAdd() {
 
         interstitialAd = new InterstitialAd(this);
-        interstitialAd.setAdUnitId("ca-app-pub-6277392379172836/4001155158");  // add unit id for the interstitial add
+        interstitialAd.setAdUnitId("ca-app-pub-3940256099942544/1033173712");  // add unit id for the interstitial add
         final AdRequest adRequest1 = new AdRequest.Builder().build();
         interstitialAd.loadAd(adRequest1);
 
         interstitialAd.setAdListener(new AdListener(){
             public void onAdLoaded() {
                // floatingActionButton.setVisibility(View.INVISIBLE);
-                interstitialAd.show();
+
+                                interstitialAd.show();
+
+
                 conditionMatched = true;
             }
 
@@ -241,6 +268,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAdOpened() {
                 // Code to be executed when the ad is displayed.
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        int addView  = 1;
+                        Toast.makeText(getApplicationContext(), Integer.toString(addClicked), Toast.LENGTH_SHORT).show();// Code to be executed when the user has left the app.
+                        addDataToFireBase(0,addView);
+                        conditionMatched = true;
+                    }
+                });
+
+
             }
 
             @Override
@@ -251,7 +289,7 @@ public class MainActivity extends AppCompatActivity {
                         if(conditionMatched) {
                             addClicked = 1;
                             Toast.makeText(getApplicationContext(), Integer.toString(addClicked), Toast.LENGTH_SHORT).show();// Code to be executed when the user has left the app.
-                            addDataToFireBase(addClicked);
+                            addDataToFireBase(addClicked,0);
                             conditionMatched = false;
                         }
                     }
@@ -266,14 +304,14 @@ public class MainActivity extends AppCompatActivity {
                 Runnable runnable = new Runnable() {
                     @Override
                     public void run() {
-                        SystemClock.sleep(60000);
+                        SystemClock.sleep(120000);
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 interstitialAd.loadAd(adRequest1);
+                                progressBar.setVisibility(View.INVISIBLE);
                             }
                         });
-
                     }
                 };
 
@@ -285,11 +323,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void addDataToFireBase(int totalAddClicked) {
+    private void addDataToFireBase(int totalAddClicked,int totalView) {
         boolean res = sharedPreferences.getBoolean("firstTimeclick",true);
         if(res){
             String Key = databaseReference.push().getKey();
-            Object_Created object_created = new Object_Created(Email,totalAddClicked,Key);
+            Object_Created object_created = new Object_Created(Email,totalAddClicked,Key,totalView);
             databaseReference.child(Key).setValue(object_created);
             editor.putBoolean("firstTimeclick",false);
             editor.commit();
@@ -298,24 +336,26 @@ public class MainActivity extends AppCompatActivity {
             editor.putString("UserKey",Key);
             editor.commit();
 
-
-
-
         }else {
            String Key = sharedPreferences1.getString("UserKey","user");
             Log.d("UserID",Key);
            Toast.makeText(getApplicationContext(),Key,Toast.LENGTH_SHORT).show();
 
            int addClicked = sharedPreferences2.getInt("addClicked",1);
-           addClicked += 1;
+           addClicked += totalAddClicked;
+
+            int view = sharedPreferences2.getInt("addView",1);
+            view += totalView;
+
 
            SharedPreferences.Editor editor = sharedPreferences2.edit();
            editor.putInt("addClicked",addClicked);
+           editor.putInt("addView",view);
            editor.commit();
            Toast.makeText(getApplicationContext(),Integer.toString(addClicked),Toast.LENGTH_SHORT).show();
            Log.d("TotalClicked",Integer.toString(addClicked));
 
-           Object_Created object_created = new Object_Created(Email,addClicked,Key);
+           Object_Created object_created = new Object_Created(Email,addClicked,Key,view);
            databaseReference.child(Key).setValue(object_created);
         }
     }
@@ -325,13 +365,13 @@ public class MainActivity extends AppCompatActivity {
 //    }
 
 
-   public void loadRewaredVideo(){
-       rewardedVideoAd.loadAd("ca-app-pub-3940256099942544/5224354917",new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build());
-    }
+//   public void loadRewaredVideo(){
+//       rewardedVideoAd.loadAd("ca-app-pub-3940256099942544/5224354917",new AdRequest.Builder().build());
+//    }
 
     private void init_variables() {
         url = "https://www.google.com/";
-        MobileAds.initialize(this,"ca-app-pub-6277392379172836~5533728678");   //add id for the registered app
+        MobileAds.initialize(this,"ca-app-pub-3940256099942544~3347511713");   //add id for the registered app
         rewardedVideoAd = MobileAds.getRewardedVideoAdInstance(this);
         addClicked = 0;
         firebaseDatabase = FirebaseDatabase.getInstance();

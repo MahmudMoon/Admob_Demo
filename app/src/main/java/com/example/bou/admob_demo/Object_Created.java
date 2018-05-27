@@ -4,11 +4,21 @@ public class Object_Created {
     private String gmail;
     private int totalAddClicked;
     private String Key;
+    private int totalView;
 
-    public Object_Created(String gmail, int totalAddClicked, String key) {
+    public Object_Created(String gmail, int totalAddClicked, String key,int totalView) {
         this.gmail = gmail;
         this.totalAddClicked = totalAddClicked;
         this.Key = key;
+        this.totalView = totalView;
+    }
+
+    public int getTotalView() {
+        return totalView;
+    }
+
+    public void setTotalView(int totalView) {
+        this.totalView = totalView;
     }
 
     public String getGmail() {
