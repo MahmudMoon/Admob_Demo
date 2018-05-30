@@ -97,13 +97,14 @@ public class LoginActivity extends AppCompatActivity {
                 }
 
 
-                    String email = Email.getText().toString();
+                    final String email = Email.getText().toString();
                     String password = Password.getText().toString();
                     firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()) {
                                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                intent.putExtra("email",email);
                                 startActivity(intent);
                             } else {
                                 Toast.makeText(getApplicationContext(), "Failed", Toast.LENGTH_SHORT).show();
