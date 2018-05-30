@@ -86,7 +86,7 @@ public class LoginActivity extends AppCompatActivity {
                 boolean networkCheck =  isNetWorkAvailable();
                 if(networkCheck) {
 
-                boolean a = true;
+                boolean a = false;
                 if(a) {
                     String email = Email.getText().toString();
                     String password = Password.getText().toString();

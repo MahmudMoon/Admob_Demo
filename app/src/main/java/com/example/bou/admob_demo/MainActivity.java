@@ -33,6 +33,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.net.URL;
+import java.util.Stack;
+
 public class MainActivity extends AppCompatActivity {
 
     WebView webView;
@@ -50,8 +53,9 @@ public class MainActivity extends AppCompatActivity {
     SharedPreferences sharedPreferences1;
     SharedPreferences sharedPreferences2;
     boolean conditionMatched;
-
     String Email;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,25 +71,32 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setPositiveButton("YEs", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                finishAffinity();
-            }
-        });
+        if(webView.canGoBack()) {
+            webView.goBack();
+        }else{
+            // urls.clear();
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setPositiveButton("YEs", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    finishAffinity();
+                }
+            });
 
-        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
+            builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
                     dialog.cancel();
-            }
-        });
+                }
+            });
 
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
-
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
+        }
     }
+
+
+
 
     private void init_functions() {
         floatingActionButton.setVisibility(View.INVISIBLE);
@@ -94,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
         webView.getSettings().setJavaScriptEnabled(true);
         webView.loadUrl(url);
         progressBar.setVisibility(View.INVISIBLE);
-      //  webView.setWebViewClient(new MyWebViewClient());
+        webView.setWebViewClient(new MyWebViewClient());
 
 
 
@@ -113,6 +124,8 @@ public class MainActivity extends AppCompatActivity {
 
 
         showingInterstitialAdd();
+
+        showRewardedVideo();
 
 //        floatingActionButton.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -188,75 +201,111 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
-
-        // rewardedVideoAd.loadAd("ca-app-pub-3940256099942544/5224354917",new AdRequest.Builder().build());
-
-//        rewardedVideoAd.setRewardedVideoAdListener(new RewardedVideoAdListener() {
-//            @Override
-//            public void onRewardedVideoAdLoaded() {
-//                  floatingActionButton1.setVisibility(View.INVISIBLE);
-//            }
-//
-//            @Override
-//            public void onRewardedVideoAdOpened() {
-//
-//            }
-//
-//            @Override
-//            public void onRewardedVideoStarted() {
-//
-//            }
-//
-//            @Override
-//            public void onRewardedVideoAdClosed() {
-//                floatingActionButton1.setVisibility(View.INVISIBLE);
-//                 loadRewaredVideo();
-//
-//            }
-//
-//            @Override
-//            public void onRewarded(RewardItem rewardItem) {
-//
-//            }
-//
-//            @Override
-//            public void onRewardedVideoAdLeftApplication() {
-//
-//            }
-//
-//            @Override
-//            public void onRewardedVideoAdFailedToLoad(int i) {
-//
-//            }
-//
-//            @Override
-//            public void onRewardedVideoCompleted() {
-//             //   floatingActionButton1.setVisibility(View.INVISIBLE);
-//
-//
-//            }
-//        });
-
-
         // rewared add end --------------------------------->
 
     }
 
+
+    public void  showRewardedVideo(){
+
+
+        rewardedVideoAd = MobileAds.getRewardedVideoAdInstance(this);
+        rewardedVideoAd.loadAd("ca-app-pub-8261362841062273/5217548804",new AdRequest.Builder().build());
+
+
+        rewardedVideoAd.setRewardedVideoAdListener(new RewardedVideoAdListener() {
+            @Override
+            public void onRewardedVideoAdLoaded() {
+                rewardedVideoAd.show();
+                      //  Toast.makeText(getApplicationContext(),"Loaded",Toast.LENGTH_LONG).show();
+
+            }
+
+            @Override
+            public void onRewardedVideoAdOpened() {
+                addDataToFireBase(0,1);
+              //  Toast.makeText(getApplicationContext(),"Opened",Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onRewardedVideoStarted() {
+
+            }
+
+            @Override
+            public void onRewardedVideoAdClosed() {
+              //  Toast.makeText(getApplicationContext(),"closed",Toast.LENGTH_LONG).show();
+                Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+
+                        SystemClock.sleep(60000*5);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                rewardedVideoAd.loadAd("ca-app-pub-8261362841062273/5217548804",new AdRequest.Builder().build());
+                            }
+                        });
+                    }
+                };
+
+                Thread thread = new Thread(runnable);
+                thread.start();
+            }
+
+            @Override
+            public void onRewarded(RewardItem rewardItem) {
+
+            }
+
+            @Override
+            public void onRewardedVideoAdLeftApplication() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        addDataToFireBase(1,0);
+                      //  Toast.makeText(getApplicationContext(),"Left",Toast.LENGTH_LONG).show();
+                    }
+                });
+
+            }
+
+            @Override
+            public void onRewardedVideoAdFailedToLoad(int i) {
+
+            }
+
+            @Override
+            public void onRewardedVideoCompleted() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        addDataToFireBase(0,1);
+                       // Toast.makeText(getApplicationContext(),"Complerted",Toast.LENGTH_LONG).show();
+                    }
+                });
+
+            }
+        });
+
+    }
+
+
+
+
+
     private void showingInterstitialAdd() {
 
         interstitialAd = new InterstitialAd(this);
-        interstitialAd.setAdUnitId("ca-app-pub-3940256099942544/1033173712");  // add unit id for the interstitial add
+        interstitialAd.setAdUnitId("ca-app-pub-8261362841062273/8351689041");  // add unit id for the interstitial add
         final AdRequest adRequest1 = new AdRequest.Builder().build();
         interstitialAd.loadAd(adRequest1);
 
         interstitialAd.setAdListener(new AdListener(){
             public void onAdLoaded() {
-               // floatingActionButton.setVisibility(View.INVISIBLE);
-
-                                interstitialAd.show();
-
-
+               // floatingActionButton.setVisibility(View.INVISIBLE)
+                 interstitialAd.show();
                 conditionMatched = true;
             }
 
@@ -272,7 +321,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         int addView  = 1;
-                        Toast.makeText(getApplicationContext(), Integer.toString(addClicked), Toast.LENGTH_SHORT).show();// Code to be executed when the user has left the app.
+                     //   Toast.makeText(getApplicationContext(), Integer.toString(addClicked), Toast.LENGTH_SHORT).show();// Code to be executed when the user has left the app.
                         addDataToFireBase(0,addView);
                         conditionMatched = true;
                     }
@@ -288,7 +337,7 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
                         if(conditionMatched) {
                             addClicked = 1;
-                            Toast.makeText(getApplicationContext(), Integer.toString(addClicked), Toast.LENGTH_SHORT).show();// Code to be executed when the user has left the app.
+                         //   Toast.makeText(getApplicationContext(), Integer.toString(addClicked), Toast.LENGTH_SHORT).show();// Code to be executed when the user has left the app.
                             addDataToFireBase(addClicked,0);
                             conditionMatched = false;
                         }
@@ -304,7 +353,7 @@ public class MainActivity extends AppCompatActivity {
                 Runnable runnable = new Runnable() {
                     @Override
                     public void run() {
-                        SystemClock.sleep(120000);
+                        SystemClock.sleep(60000);
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -339,9 +388,9 @@ public class MainActivity extends AppCompatActivity {
         }else {
            String Key = sharedPreferences1.getString("UserKey","user");
             Log.d("UserID",Key);
-           Toast.makeText(getApplicationContext(),Key,Toast.LENGTH_SHORT).show();
+          // Toast.makeText(getApplicationContext(),Key,Toast.LENGTH_SHORT).show();
 
-           int addClicked = sharedPreferences2.getInt("addClicked",1);
+           int addClicked = sharedPreferences2.getInt("addClicked",0);
            addClicked += totalAddClicked;
 
             int view = sharedPreferences2.getInt("addView",1);
@@ -352,7 +401,7 @@ public class MainActivity extends AppCompatActivity {
            editor.putInt("addClicked",addClicked);
            editor.putInt("addView",view);
            editor.commit();
-           Toast.makeText(getApplicationContext(),Integer.toString(addClicked),Toast.LENGTH_SHORT).show();
+          // Toast.makeText(getApplicationContext(),Integer.toString(addClicked),Toast.LENGTH_SHORT).show();
            Log.d("TotalClicked",Integer.toString(addClicked));
 
            Object_Created object_created = new Object_Created(Email,addClicked,Key,view);
@@ -371,16 +420,17 @@ public class MainActivity extends AppCompatActivity {
 
     private void init_variables() {
         url = "https://www.google.com/";
-        MobileAds.initialize(this,"ca-app-pub-3940256099942544~3347511713");   //add id for the registered app
+        MobileAds.initialize(this,"ca-app-pub-8261362841062273~5366433056");   //add id for the registered app
         rewardedVideoAd = MobileAds.getRewardedVideoAdInstance(this);
         addClicked = 0;
         firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference("Admob_details");
-        sharedPreferences = getSharedPreferences("userStatus_",MODE_PRIVATE);
-        sharedPreferences1 = getSharedPreferences("user",MODE_PRIVATE);
-        sharedPreferences2 = getSharedPreferences("click",MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences("userdetail",MODE_PRIVATE);
+        sharedPreferences1 = getSharedPreferences("users",MODE_PRIVATE);
+        sharedPreferences2 = getSharedPreferences("clicks",MODE_PRIVATE);
         editor = sharedPreferences.edit();
         conditionMatched = true;
+
     }
 
     private void init_views() {
@@ -408,6 +458,7 @@ public class MainActivity extends AppCompatActivity {
 
             loadingFinished = false;
             webView.loadUrl(url);
+
             return true;
         }
 
@@ -416,20 +467,25 @@ public class MainActivity extends AppCompatActivity {
                 WebView view, String url, Bitmap favicon) {
             super.onPageStarted(view, url, favicon);
             loadingFinished = false;
+
+           // Toast.makeText(getApplicationContext(),urls.size(),Toast.LENGTH_SHORT).show();
            // progressBar.setVisibility(View.INVISIBLE);
         }
 
         @Override
         public void onPageFinished(WebView view, String url) {
+
             if (!redirect) {
                 loadingFinished = true;
             }
 
             if (loadingFinished && !redirect) {
                progressBar.setVisibility(View.INVISIBLE);
+
             } else {
                 redirect = false;
             }
         }
     }
+
 }
